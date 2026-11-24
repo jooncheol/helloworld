@@ -96,6 +96,7 @@ int main(void) {
     int state[STATE_FIELDS];
     
     char command;
+    int result = GAME_RUNNING;
 
     // Initialize the game board
     initialise(board, size, state);
@@ -144,7 +145,21 @@ int main(void) {
         // Only successful commands reach this point. P waits here for one turn.
         clearExplosion(board, size);
         advanceTime(board, size, state);
+
+        // Check survival first so breaking the last brick cannot cancel a loss.
+        if (!state[PLAYER_ALIVE]) {
+            result = GAME_LOST;
+            break;
+        }
+        if (state[BRICKS_REMAINS] == 0) {
+            result = GAME_WON;
+            break;
+        }
     }
+
+    displayBoard(board, size, state);
+    displayLegend(state);
+    endGameMessage(state, result);
 
     return 0;
 }
@@ -354,5 +369,26 @@ void explodeBomb(int board[][MAX_COLS], int size[], int state[]) {
 
 
 void endGameMessage(int state[], int win) {
-    // Display End Game Message and Statistics
+    const char *border = "+-----------------------+-----+\n";
+
+    // Print the result, then print each statistic in the same column widths.
+    if (win == GAME_WON) {
+        printf("[YOU WIN]: all soft bricks were destroyed.\n");
+    } else if (win == GAME_LOST) {
+        printf("[GAME OVER]: the player was caught in an explosion.\n");
+    } else {
+        printf("[GAME OVER]: the player quits.\n");
+    }
+
+    printf("%s", border);
+    printf("| %-21s | %3d |\n", "Successful moves", state[MOVE_COUNT]);
+    printf("%s", border);
+    printf("| %-21s | %3d |\n", "Bombs dropped", state[BOMB_COUNT]);
+    printf("%s", border);
+    printf("| %-21s | %3d |\n", "Soft bricks destroyed", state[BRICKS_DESTROYED]);
+    printf("%s", border);
+    if (win != GAME_WON) {
+        printf("| %-21s | %3d |\n", "Soft bricks remaining", state[BRICKS_REMAINS]);
+        printf("%s", border);
+    }
 }
