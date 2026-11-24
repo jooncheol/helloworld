@@ -285,7 +285,42 @@ void advanceTime(int board[][MAX_COLS], int size[], int state[]) {
 }
 
 void explodeBomb(int board[][MAX_COLS], int size[], int state[]) {
-    // Explode the bomb; read the data from state[]/board[][]
+    int row = state[BOMB_ROW];
+    int col = state[BOMB_COL];
+    int rowStep[4] = {-1, 1, 0, 0};
+    int colStep[4] = {0, 0, -1, 1};
+    int direction, distance, r, c, tile;
+
+    // Mark the center, then walk outward one tile at a time in each direction.
+    if (board[row][col] == PLAYER_ON_BOMB) {
+        state[PLAYER_ALIVE] = 0;
+    }
+    board[row][col] = EXPLODE;
+    state[BOMB_ACTIVE] = 0;
+
+    for (direction = 0; direction < 4; direction++) {
+        for (distance = 1; distance <= state[EXPLOSION_RANGE]; distance++) {
+            r = row + rowStep[direction] * distance;
+            c = col + colStep[direction] * distance;
+            if (r < 0 || r >= size[0] || c < 0 || c >= size[1]) {
+                break;
+            }
+            tile = board[r][c];
+            if (tile == WALL) {
+                break;
+            }
+            board[r][c] = EXPLODE;
+            if (tile == PLAYER) {
+                state[PLAYER_ALIVE] = 0;
+            }
+            // The first brick breaks and stops this ray.
+            if (tile == BRICK_EMPTY || tile == BRICK_BOOST) {
+                state[BRICKS_REMAINS]--;
+                state[BRICKS_DESTROYED]++;
+                break;
+            }
+        }
+    }
 }
 
 
