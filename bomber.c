@@ -98,6 +98,9 @@ int main(void) {
     // Initialize the game board
     initialise(board, size, state);
 
+    displayBoard(board, size, state);
+    displayLegend(state);
+
     // Pseudocode
     /* While the game is still running
             Display Board, Legend, and ask for input 
@@ -153,11 +156,43 @@ void initialise(int board[][MAX_COLS], int size[], int state[]) {
 }
 
 void displayBoard(int board[][MAX_COLS], int size[], int state[]) {
+    int r, c;
 
+    // Give every tile two characters so the columns stay aligned.
+    for (r = 0; r < size[0]; r++) {
+        for (c = 0; c < size[1]; c++) {
+            switch (board[r][c]) {
+                case WALL: printf("[]"); break;
+                case BRICK_EMPTY:
+                case BRICK_BOOST: printf("()"); break;
+                case PLAYER: printf("@@"); break;
+                case PLAYER_ON_BOMB: printf("@B"); break;
+                case BOMB: printf("BB"); break;
+                case BOOST: printf("EX"); break;
+                case EXPLODE:
+                case EXPLODE_BOOST: printf("##"); break;
+                default: printf("  "); break;
+            }
+        }
+        printf("\n");
+    }
+
+    // Show bomb details only while a bomb is active.
+    printf("Actions=%d  Moves=%d  Bombs=%d  Range=%d  Soft bricks=%d\n",
+           state[ACTION_COUNT], state[MOVE_COUNT], state[BOMB_COUNT],
+           state[EXPLOSION_RANGE], state[BRICKS_REMAINS]);
+    if (state[BOMB_ACTIVE]) {
+        printf("Bomb 1: timer=%d at (%d,%d)\n", state[BOMB_TIMER],
+               state[BOMB_ROW], state[BOMB_COL]);
+    }
+    printf("Destroyed=%d  Boosts dropped=%d  Boosts collected=%d\n",
+           state[BRICKS_DESTROYED], state[BOOSTS_DROPPED], state[BOOSTS_COLLECTED]);
 }
 
 void displayLegend(int state[]) {
-
+    // Print the symbols separately from the command prompt.
+    (void)state;
+    printf("Legend: [] wall, () soft brick, @@ player, @B player on bomb, BB bomb, EX boost, ## explosion\n");
 }
 
 
