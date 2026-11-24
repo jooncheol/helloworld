@@ -138,6 +138,9 @@ int main(void) {
             printf("Error: an unexploded bomb already exists.\n");
             continue;
         }
+
+        // Only successful commands reach this point. P waits here for one turn.
+        advanceTime(board, size, state);
     }
 
     return 0;
@@ -271,7 +274,14 @@ int dropBomb(int board[][MAX_COLS], int state[]) {
 
 
 void advanceTime(int board[][MAX_COLS], int size[], int state[]) {
-    // Advance game time; explode bomb if needed
+    // Placing the bomb also advances time, so its first visible timer is 3.
+    state[ACTION_COUNT]++;
+    if (state[BOMB_ACTIVE]) {
+        state[BOMB_TIMER]--;
+        if (state[BOMB_TIMER] == 0) {
+            explodeBomb(board, size, state);
+        }
+    }
 }
 
 void explodeBomb(int board[][MAX_COLS], int size[], int state[]) {
