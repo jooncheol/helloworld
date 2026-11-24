@@ -85,6 +85,8 @@ void endGameMessage(int state[], int win); // e.g., win can take GAME_WON or GAM
 
 
 
+static void clearExplosion(int board[][MAX_COLS], int size[]);
+
 /* DO NOT DECLARE EXTRA GLOBAL VARIABLES */
 
 int main(void) {
@@ -140,6 +142,7 @@ int main(void) {
         }
 
         // Only successful commands reach this point. P waits here for one turn.
+        clearExplosion(board, size);
         advanceTime(board, size, state);
     }
 
@@ -272,6 +275,19 @@ int dropBomb(int board[][MAX_COLS], int state[]) {
 }
 
 
+
+static void clearExplosion(int board[][MAX_COLS], int size[]) {
+    int r, c;
+
+    // Clear the previous blast only after a valid command and before a new blast.
+    for (r = 0; r < size[0]; r++) {
+        for (c = 0; c < size[1]; c++) {
+            if (board[r][c] == EXPLODE) {
+                board[r][c] = CORRIDOR;
+            }
+        }
+    }
+}
 
 void advanceTime(int board[][MAX_COLS], int size[], int state[]) {
     // Placing the bomb also advances time, so its first visible timer is 3.
