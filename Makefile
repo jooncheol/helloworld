@@ -1,10 +1,10 @@
-hello: hello.o
+bomber: bomber.o
 	gcc -o $@ $<
 
-hello.o: hello.c
+bomber.o: bomber.c
 	gcc -o $@ -c $<
 
-all: hello
+all: bomber
 
 clean:
-	rm -f hello *.o a.out
+	rm -f bomber *.o a.out
