@@ -126,7 +126,30 @@ void initialise(int board[][MAX_COLS], int size[], int state[]) {
     };
     int row = 9;
     int col = 15;
-    // Initialize the game board, size, and state
+    int r, c, i;
+
+    // Start the counters at zero, then set the initial player values.
+    size[0] = row;
+    size[1] = col;
+    for (i = 0; i < STATE_FIELDS; i++) {
+        state[i] = 0;
+    }
+    state[PLAYER_ALIVE] = 1;
+    state[EXPLOSION_RANGE] = INITIAL_RANGE;
+
+    // Copy the map and find the player and all breakable bricks.
+    for (r = 0; r < row; r++) {
+        for (c = 0; c < col; c++) {
+            board[r][c] = start[r][c];
+            if (board[r][c] == PLAYER) {
+                state[PLAYER_ROW] = r;
+                state[PLAYER_COL] = c;
+            }
+            if (board[r][c] == BRICK_EMPTY || board[r][c] == BRICK_BOOST) {
+                state[BRICKS_REMAINS]++;
+            }
+        }
+    }
 }
 
 void displayBoard(int board[][MAX_COLS], int size[], int state[]) {
