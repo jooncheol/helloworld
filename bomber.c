@@ -134,6 +134,10 @@ int main(void) {
                 continue;
             }
         }
+        if (command == 'B' && !dropBomb(board, state)) {
+            printf("Error: an unexploded bomb already exists.\n");
+            continue;
+        }
     }
 
     return 0;
@@ -237,7 +241,12 @@ int movePlayer(int board[][MAX_COLS], int size[], int state[], int rowChange, in
     if (tile == WALL || tile == BRICK_EMPTY || tile == BRICK_BOOST || tile == BOMB) {
         return 0;
     }
-    board[row][col] = CORRIDOR;
+    // A bomb stays on the old tile when the player steps away.
+    if (board[row][col] == PLAYER_ON_BOMB) {
+        board[row][col] = BOMB;
+    } else {
+        board[row][col] = CORRIDOR;
+    }
     board[nextRow][nextCol] = PLAYER;
     state[PLAYER_ROW] = nextRow;
     state[PLAYER_COL] = nextCol;
@@ -246,9 +255,17 @@ int movePlayer(int board[][MAX_COLS], int size[], int state[], int rowChange, in
 }
 
 int dropBomb(int board[][MAX_COLS], int state[]) {
-    // Process a dropBomb command from user.
-    // return value indicates success or fail
-    
+    // Part 1 allows only one active bomb at a time.
+    if (state[BOMB_ACTIVE]) {
+        return 0;
+    }
+    state[BOMB_ROW] = state[PLAYER_ROW];
+    state[BOMB_COL] = state[PLAYER_COL];
+    state[BOMB_TIMER] = BOMB_FUSE;
+    state[BOMB_ACTIVE] = 1;
+    state[BOMB_COUNT]++;
+    board[state[BOMB_ROW]][state[BOMB_COL]] = PLAYER_ON_BOMB;
+    return 1;
 }
 
 
