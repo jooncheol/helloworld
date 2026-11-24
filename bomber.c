@@ -253,6 +253,11 @@ int movePlayer(int board[][MAX_COLS], int size[], int state[], int rowChange, in
     } else {
         board[row][col] = CORRIDOR;
     }
+    // The blast reads the current range, even for a bomb already on the board.
+    if (tile == BOOST || tile == EXPLODE_BOOST) {
+        state[EXPLOSION_RANGE]++;
+        state[BOOSTS_COLLECTED]++;
+    }
     board[nextRow][nextCol] = PLAYER;
     state[PLAYER_ROW] = nextRow;
     state[PLAYER_COL] = nextCol;
@@ -284,6 +289,8 @@ static void clearExplosion(int board[][MAX_COLS], int size[]) {
         for (c = 0; c < size[1]; c++) {
             if (board[r][c] == EXPLODE) {
                 board[r][c] = CORRIDOR;
+            } else if (board[r][c] == EXPLODE_BOOST) {
+                board[r][c] = BOOST;
             }
         }
     }
@@ -333,6 +340,11 @@ void explodeBomb(int board[][MAX_COLS], int size[], int state[]) {
             if (tile == BRICK_EMPTY || tile == BRICK_BOOST) {
                 state[BRICKS_REMAINS]--;
                 state[BRICKS_DESTROYED]++;
+                // Keep the item hidden under the blast until the next turn.
+                if (tile == BRICK_BOOST) {
+                    board[r][c] = EXPLODE_BOOST;
+                    state[BOOSTS_DROPPED]++;
+                }
                 break;
             }
         }
