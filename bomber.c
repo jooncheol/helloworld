@@ -98,18 +98,28 @@ int main(void) {
     // Initialize the game board
     initialise(board, size, state);
 
-    displayBoard(board, size, state);
-    displayLegend(state);
+    while (1) {
+        displayBoard(board, size, state);
+        displayLegend(state);
+        printf("Command [W/A/S/D = move, B = bomb, P = pause, Q = quit]: ");
+        fflush(stdout);
 
-    // Pseudocode
-    /* While the game is still running
-            Display Board, Legend, and ask for input 
-            Read the user input and process it
-            Check End Game condition
-        
-       Display Board and Legend
-       Display End Game Message and Statistics
-    */
+        // The space before %c skips Enter and other whitespace.
+        if (scanf(" %c", &command) != 1) {
+            break;
+        }
+        if (command >= 'a' && command <= 'z') {
+            command = command - 'a' + 'A';
+        }
+        if (command == 'Q') {
+            break;
+        }
+        if (command != 'W' && command != 'A' && command != 'S' &&
+            command != 'D' && command != 'B' && command != 'P') {
+            printf("Error: enter W, A, S, D, B, P, or Q.\n");
+            continue;
+        }
+    }
 
     return 0;
 }
