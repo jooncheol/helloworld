@@ -99,6 +99,9 @@ int main(void) {
     initialise(board, size, state);
 
     while (1) {
+        int rowChange = 0;
+        int colChange = 0;
+
         displayBoard(board, size, state);
         displayLegend(state);
         printf("Command [W/A/S/D = move, B = bomb, P = pause, Q = quit]: ");
@@ -118,6 +121,18 @@ int main(void) {
             command != 'D' && command != 'B' && command != 'P') {
             printf("Error: enter W, A, S, D, B, P, or Q.\n");
             continue;
+        }
+
+        // A move changes exactly one coordinate by one tile.
+        if (command == 'W') rowChange = -1;
+        if (command == 'S') rowChange = 1;
+        if (command == 'A') colChange = -1;
+        if (command == 'D') colChange = 1;
+        if (rowChange != 0 || colChange != 0) {
+            if (!movePlayer(board, size, state, rowChange, colChange)) {
+                printf("Error: a wall, soft brick, or bomb blocks the movement.\n");
+                continue;
+            }
         }
     }
 
@@ -208,9 +223,26 @@ void displayLegend(int state[]) {
 
 
 int movePlayer(int board[][MAX_COLS], int size[], int state[], int rowChange, int colChange) {
-    // Process a "move" command from user.
-    // return value indicates success or fail
-    
+    int row = state[PLAYER_ROW];
+    int col = state[PLAYER_COL];
+    int nextRow = row + rowChange;
+    int nextCol = col + colChange;
+    int tile;
+
+    // Check the destination before changing either the board or the counters.
+    if (nextRow < 0 || nextRow >= size[0] || nextCol < 0 || nextCol >= size[1]) {
+        return 0;
+    }
+    tile = board[nextRow][nextCol];
+    if (tile == WALL || tile == BRICK_EMPTY || tile == BRICK_BOOST || tile == BOMB) {
+        return 0;
+    }
+    board[row][col] = CORRIDOR;
+    board[nextRow][nextCol] = PLAYER;
+    state[PLAYER_ROW] = nextRow;
+    state[PLAYER_COL] = nextCol;
+    state[MOVE_COUNT]++;
+    return 1;
 }
 
 int dropBomb(int board[][MAX_COLS], int state[]) {
